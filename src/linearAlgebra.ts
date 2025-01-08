@@ -57,6 +57,18 @@ export class Vector {
 
     return new Vector(transformer.rows, (i: number) => newComponents[i]);
   }
+  public softmax(): Vector {
+    // Compute the exponentials of each component
+    const expComponents = this.components.map((value) => Math.exp(value));
+
+    // Sum of the exponentials
+    const sumExp = expComponents.reduce((sum, value) => sum + value, 0);
+
+    // Divide each exponential by the sum to get probabilities
+    const softmaxed = expComponents.map((value) => value / sumExp);
+
+    return new Vector(this.components.length, (i:number) => softmaxed[i]);
+  }
 }
 
 export class Matrix {
