@@ -32,12 +32,13 @@ alert(nn.forwards(v1).components[0]);
 
 let engine = new NeuralNetwork([12,20,10,3])
 let round:number = 0
-let playerMoves: number[] = []
-let engineMoves: number[] = []
+let playerMoves: number[][] = []
+let engineMoves: number[][] = []
 
 function runRound(playerDecision:string): void {
   let engineMove: number[] = []
   let playerMove: number[] = []
+  //turn player decision into an array
   if (playerDecision === "Rock") {
     playerMove = [1,0,0];
   } else if (playerDecision === "Paper") {
@@ -46,7 +47,43 @@ function runRound(playerDecision:string): void {
     playerMove = [0,0,1];
 
   }
-  if (round < 4) {
 
+  //get the data to forwards and backwards propagate by turning it into a vector
+  let trainingData: number[] = []
+
+  for (let i = playerMoves.length-2;i<playerMoves.length;i++) {
+    for (let j = 0;j<playerMoves[i].length;j++) {
+      trainingData.push(playerMoves[i][j])
+      trainingData.push(engineMoves[i][j])
+    }
   }
+  let trainingInput = new Vector(12,(i:number) => {return trainingData[i]})
+  //engine decides its move
+  if (round < 5) {
+    let randChoice:number = Math.floor(Math.random() * 3)
+    if (randChoice==0) {
+      engineMove = [1,0,0]
+    } else if (randChoice==1) {
+      engineMove = [0,1,0]
+    } else {
+      engineMove = [0,0,1]
+    }
+  } else {
+    engine.forwards(trainingInput)
+  }
+
+  //scores are updated
+  
+
+  //engine is trained and moves are push for the next round
+  if (playerMove[0]) {
+    target = new Vector(3,(i:number) => {return [0,1,0][i]})
+  } else if (playerMove[1]){
+    target = new Vector(3,(i:number) => {return [0,0,1][i]})
+  } else if (playerMove[2]) {
+    target = new Vector(3,(i:number) => {return [1,0,0][i]})
+  }
+  engine.train(trainingInput,target,0.1)
+  playerMoves.push(playerMove)
+  engineMoves.push(engineMove)
 }
