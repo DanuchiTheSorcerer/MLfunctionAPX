@@ -21,7 +21,7 @@ export class NeuralNetwork {
     for (let i = 0; i < layerSizes.length - 1; i++) {
       // Create a matrix for the weights between layer i and layer i+1
       this.weights.push(
-        new Matrix(layerSizes[i + 1], layerSizes[i], (row:number, col:number) =>
+        new Matrix(layerSizes[i + 1], layerSizes[i], () =>
           Math.random()
         )
       ); // Random initialization
@@ -57,7 +57,7 @@ export class NeuralNetwork {
 
   private sigmoidPrime(input:Vector): Vector {
     let sigm = this.sigmoid(input)
-    let oneVec = new Vector(input.components.length,(i:number)=>1)
+    let oneVec = new Vector(input.components.length,()=>1)
     return sigm.mult(oneVec.subtract(sigm))
   }
 
