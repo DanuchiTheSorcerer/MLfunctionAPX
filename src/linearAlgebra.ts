@@ -14,6 +14,30 @@ export class Vector {
 
     return new Vector(this.components.length, (i: number) => newComponents[i]);
   }
+  public mult(otherVector: Vector): Vector {
+    let newComponents: number[] = [];
+    for (let i = 0; i < this.components.length; i++) {
+      newComponents[i] = otherVector.components[i] * this.components[i];
+    }
+
+    return new Vector(this.components.length, (i: number) => newComponents[i]);
+  }
+  public scale(scalar: number): Vector {
+    let newComponents: number[] = [];
+    for (let i = 0; i < this.components.length; i++) {
+      newComponents[i] = this.components[i]*scalar;
+    }
+
+    return new Vector(this.components.length, (i: number) => newComponents[i]);
+  }
+  public subtract(otherVector: Vector): Vector {
+    let newComponents: number[] = [];
+    for (let i = 0; i < this.components.length; i++) {
+      newComponents[i] = this.components[i] - otherVector.components[i];
+    }
+
+    return new Vector(this.components.length, (i: number) => newComponents[i]);
+  }
   public transform(transformer: Matrix): Vector {
     if (transformer.columns !== this.components.length) {
       throw new Error(
@@ -39,6 +63,7 @@ export class Matrix {
   public matrix: number[][] = [];
   public rows: number;
   public columns: number;
+
   public constructor(
     rows: number,
     columns: number,
@@ -52,5 +77,23 @@ export class Matrix {
         this.matrix[i][j] = genFunc(i, j);
       }
     }
+  }
+
+  // Transpose the matrix
+  public transpose(): Matrix {
+    return new Matrix(this.columns, this.rows, (row, col) => this.matrix[col][row]);
+  }
+
+  // Scale the matrix by a scalar
+  public scale(scalar: number): Matrix {
+    return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] * scalar);
+  }
+
+  // Subtract another matrix
+  public subtract(other: Matrix): Matrix {
+    if (this.rows !== other.rows || this.columns !== other.columns) {
+      throw new Error("Matrix dimensions must match for subtraction.");
+    }
+    return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] - other.matrix[row][col]);
   }
 }
