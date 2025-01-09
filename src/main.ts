@@ -25,9 +25,10 @@ import { Vector } from './linearAlgebra.ts';
 
 
 // Neural network setup
-let nn = new NeuralNetwork([1, 20,20, 1]); // Define layers [input, hidden, output] with 'tanh' activation
+let nn = new NeuralNetwork([1, 40,40,40, 1]); // Define layers [input, hidden, output] with 'tanh' activation
 let trainingIn: Vector[] = [];
 let trainingOut: Vector[] = [];
+let currentFunction:Function
 
 // Generate training data (evenly distributed between -1 and 1)
 function generateTrainingData(func:Function):void {
@@ -36,9 +37,40 @@ function generateTrainingData(func:Function):void {
   for (let i = 0; i < 150; i++) {
     let x: number = Math.random() * 2 - 1; // Random x in [-1, 1]
     trainingIn.push(new Vector(1, () => x));
-    trainingOut.push(new Vector(1, () => func()));
+    trainingOut.push(new Vector(1, () => func(x)));
   }
 }
+
+// Create buttons for function selection
+const buttonContainer = document.createElement('div');
+document.body.appendChild(buttonContainer);
+
+// List of functions to approximate
+const functions: { name: string; func: (x: number) => number }[] = [
+  { name: "y = x", func: (x) => x },
+  { name: "y = x^2", func: (x) => x * x },
+  { name: "y = x^3", func: (x) => x * x * x },
+  { name: "y = e^x - 1", func: (x) => Math.exp(x) - 1 },
+  { name: "y = x^2 - x", func: (x) => x * x - x },
+  { name: "y = sin(2pi x)", func: (x) => Math.sin(2*Math.PI*x)/2 }
+];
+
+// Create buttons for each function
+functions.forEach(({ name, func }) => {
+  const button = document.createElement('button');
+  button.textContent = name;
+  button.onclick = () => {
+    // Reset the neural network
+    nn = new NeuralNetwork([1, 20, 20, 1]);
+
+    // Generate new training data
+    generateTrainingData(func);
+    // Log the selected function
+    console.log(`Selected function: ${name}`);
+    currentFunction = func
+  };
+  buttonContainer.appendChild(button);
+});
 
 
 // Canvas setup
@@ -78,16 +110,18 @@ function drawPoints(points: { x: number; y: number }[], color: string) {
   });
 }
 
+
+
 // Training and visualization
 function update() {
   // Train the network for one step
-  nn.train(trainingIn, trainingOut, 0.1);
+  nn.train(trainingIn, trainingOut, 0.05);
 
   // Sample points for visualization
   let truePoints: { x: number; y: number }[] = [];
   let predictedPoints: { x: number; y: number }[] = [];
   for (let x = -1; x <= 1; x += 0.01) {
-    let yTrue = approximatedFunction(x);
+    let yTrue = currentFunction(x);
     let yPred = nn.forwards(new Vector(1, () => x)).components[0];
     truePoints.push({ x, y: yTrue });
     predictedPoints.push({ x, y: yPred });
@@ -107,16 +141,9 @@ function update() {
   requestAnimationFrame(update);
 }
 
-function approximatedFunction(x:number):number {
-  return x
-  //functions to be added
-  //x
-  //x^2
-  //x^3
-  //e^x -1
-  //x*x -x
-  // one that you get to choose
-}
+currentFunction = (x:number) => {return x}
+
+generateTrainingData((x:number)=>{return x})
 
 // Start animation
 update();
@@ -129,32 +156,3 @@ update();
 
 
 
-// Create buttons for function selection
-const buttonContainer = document.createElement('div');
-document.body.appendChild(buttonContainer);
-
-// List of functions to approximate
-const functions: { name: string; func: (x: number) => number }[] = [
-  { name: "y = x", func: (x) => x },
-  { name: "y = x^2", func: (x) => x * x },
-  { name: "y = x^3", func: (x) => x * x * x },
-  { name: "y = e^x - 1", func: (x) => Math.exp(x) - 1 },
-  { name: "y = x^2 - x", func: (x) => x * x - x },
-];
-
-// Create buttons for each function
-functions.forEach(({ name, func }) => {
-  const button = document.createElement('button');
-  button.textContent = name;
-  button.onclick = () => {
-    // Reset the neural network
-    nn = new NeuralNetwork([1, 20, 20, 1]);
-
-    // Generate new training data
-    generateTrainingData(func);
-    approximatedFunction = func
-    // Log the selected function
-    console.log(`Selected function: ${name}`);
-  };
-  buttonContainer.appendChild(button);
-});
