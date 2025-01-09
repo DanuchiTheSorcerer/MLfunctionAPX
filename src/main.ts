@@ -159,11 +159,3 @@ generateTrainingData((x:number)=>{return x})
 // Start animation
 update();
 
-
-
-
-
-
-
-
-
