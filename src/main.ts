@@ -29,12 +29,13 @@ let nn = new NeuralNetwork([1, 40,40,40, 1]); // Define layers [input, hidden, o
 let trainingIn: Vector[] = [];
 let trainingOut: Vector[] = [];
 let currentFunction:Function
+let epoch:number = 0
 
 // Generate training data (evenly distributed between -1 and 1)
 function generateTrainingData(func:Function):void {
   trainingIn = [];
   trainingOut = [];
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 250; i++) {
     let x: number = Math.random() * 2 - 1; // Random x in [-1, 1]
     trainingIn.push(new Vector(1, () => x));
     trainingOut.push(new Vector(1, () => func(x)));
@@ -52,7 +53,12 @@ const functions: { name: string; func: (x: number) => number }[] = [
   { name: "y = x^3", func: (x) => x * x * x },
   { name: "y = e^x - 1", func: (x) => Math.exp(x) - 1 },
   { name: "y = x^2 - x", func: (x) => x * x - x },
-  { name: "y = sin(2pi x)", func: (x) => Math.sin(2*Math.PI*x)/2 }
+  { name: "y = sin(2pi x)", func: (x) => Math.sin(2*Math.PI*x)/2 },
+  { name: "y = |x|-0.5", func: (x) => Math.abs(x)-0.5 },
+  { name: "y = ln(x-1.1)", func: (x) => Math.log(x+1.01) },
+  { name: "y = |tanh(x-0.2)|", func: (x) => Math.abs(Math.tanh(x-0.2)) },
+  { name: "y = 3x^4 - 2x^2", func: (x) => 3*x*x*x*x - 2*x*x},
+  { name: "y = -1 + sqrt(x+1)", func: (x) => -1 + Math.sqrt(x+1)}
 ];
 
 // Create buttons for each function
@@ -68,10 +74,11 @@ functions.forEach(({ name, func }) => {
     // Log the selected function
     console.log(`Selected function: ${name}`);
     currentFunction = func
+    epoch = 0
   };
   buttonContainer.appendChild(button);
 });
-
+buttonContainer.appendChild(document.createElement('p'))
 
 // Canvas setup
 const canvas = document.createElement('canvas');
@@ -114,8 +121,12 @@ function drawPoints(points: { x: number; y: number }[], color: string) {
 
 // Training and visualization
 function update() {
+  epoch += 1
   // Train the network for one step
-  nn.train(trainingIn, trainingOut, 0.05);
+
+  nn.train(trainingIn, trainingOut, 0.2);
+
+  
 
   // Sample points for visualization
   let truePoints: { x: number; y: number }[] = [];
@@ -136,7 +147,7 @@ function update() {
   // Draw points
   drawPoints(truePoints, 'green'); // True function (x^2)
   drawPoints(predictedPoints, 'red'); // Predicted points
-
+  document.getElementsByTagName('p')[0].innerHTML = "epoch: " + epoch
   // Continue animation
   requestAnimationFrame(update);
 }
