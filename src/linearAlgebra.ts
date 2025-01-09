@@ -108,4 +108,10 @@ export class Matrix {
     }
     return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] - other.matrix[row][col]);
   }
+  public add(other: Matrix): Matrix {
+    if (this.rows !== other.rows || this.columns !== other.columns) {
+      throw new Error("Matrix dimensions must match for add.");
+    }
+    return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] + other.matrix[row][col]);
+  }
 }
