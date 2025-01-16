@@ -39,11 +39,6 @@ export class Vector {
     return new Vector(this.components.length, (i: number) => newComponents[i]);
   }
   public transform(transformer: Matrix): Vector {
-    if (transformer.columns !== this.components.length) {
-      throw new Error(
-        'Matrix columns must match the number of vector components.'
-      );
-    }
 
     let newComponents: number[] = [];
 
@@ -58,13 +53,10 @@ export class Vector {
     return new Vector(transformer.rows, (i: number) => newComponents[i]);
   }
   public softmax(): Vector {
-    // Compute the exponentials of each component
     const expComponents = this.components.map((value) => Math.exp(value));
 
-    // Sum of the exponentials
     const sumExp = expComponents.reduce((sum, value) => sum + value, 0);
 
-    // Divide each exponential by the sum to get probabilities
     const softmaxed = expComponents.map((value) => value / sumExp);
 
     return new Vector(this.components.length, (i:number) => softmaxed[i]);
@@ -91,27 +83,18 @@ export class Matrix {
     }
   }
 
-  // Transpose the matrix
   public transpose(): Matrix {
     return new Matrix(this.columns, this.rows, (row, col) => this.matrix[col][row]);
   }
 
-  // Scale the matrix by a scalar
   public scale(scalar: number): Matrix {
     return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] * scalar);
   }
 
-  // Subtract another matrix
   public subtract(other: Matrix): Matrix {
-    if (this.rows !== other.rows || this.columns !== other.columns) {
-      throw new Error("Matrix dimensions must match for subtraction.");
-    }
     return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] - other.matrix[row][col]);
   }
   public add(other: Matrix): Matrix {
-    if (this.rows !== other.rows || this.columns !== other.columns) {
-      throw new Error("Matrix dimensions must match for add.");
-    }
     return new Matrix(this.rows, this.columns, (row, col) => this.matrix[row][col] + other.matrix[row][col]);
   }
 }

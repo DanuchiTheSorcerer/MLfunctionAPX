@@ -24,29 +24,25 @@ import { Vector } from './linearAlgebra.ts';
 
 
 
-// Neural network setup
-let nn = new NeuralNetwork([1, 40,40,40, 1]); // Define layers [input, hidden, output] with 'tanh' activation
+let nn = new NeuralNetwork([1, 40,40,40, 1]);
 let trainingIn: Vector[] = [];
 let trainingOut: Vector[] = [];
 let currentFunction:Function
 let epoch:number = 0
 
-// Generate training data (evenly distributed between -1 and 1)
 function generateTrainingData(func:Function):void {
   trainingIn = [];
   trainingOut = [];
   for (let i = 0; i < 250; i++) {
-    let x: number = Math.random() * 2 - 1; // Random x in [-1, 1]
+    let x: number = Math.random() * 2 - 1; 
     trainingIn.push(new Vector(1, () => x));
     trainingOut.push(new Vector(1, () => func(x)));
   }
 }
 
-// Create buttons for function selection
 const buttonContainer = document.createElement('div');
 document.body.appendChild(buttonContainer);
 
-// List of functions to approximate
 const functions: { name: string; func: (x: number) => number }[] = [
   { name: "y = x", func: (x) => x },
   { name: "y = x^2", func: (x) => x * x },
@@ -61,17 +57,13 @@ const functions: { name: string; func: (x: number) => number }[] = [
   { name: "y = -1 + sqrt(x+1)", func: (x) => -1 + Math.sqrt(x+1)}
 ];
 
-// Create buttons for each function
 functions.forEach(({ name, func }) => {
   const button = document.createElement('button');
   button.textContent = name;
   button.onclick = () => {
-    // Reset the neural network
     nn = new NeuralNetwork([1, 20, 20, 1]);
 
-    // Generate new training data
     generateTrainingData(func);
-    // Log the selected function
     console.log(`Selected function: ${name}`);
     currentFunction = func
     epoch = 0
@@ -80,34 +72,30 @@ functions.forEach(({ name, func }) => {
 });
 buttonContainer.appendChild(document.createElement('p'))
 
-// Canvas setup
+
 const canvas = document.createElement('canvas');
 canvas.width = 600;
 canvas.height = 600;
 document.body.appendChild(canvas);
 const ctx = canvas.getContext('2d')!;
-ctx.translate(canvas.width / 2, canvas.height / 2); // Center canvas
-ctx.scale(canvas.width / 2, -canvas.height / 2); // Scale for Cartesian graph
+ctx.translate(canvas.width / 2, canvas.height / 2);
+ctx.scale(canvas.width / 2, -canvas.height / 2); 
 
-// Function to draw axes
 function drawAxes() {
   ctx.strokeStyle = 'gray';
   ctx.lineWidth = 0.005;
 
-  // X-axis
   ctx.beginPath();
   ctx.moveTo(-1, 0);
   ctx.lineTo(1, 0);
   ctx.stroke();
 
-  // Y-axis
   ctx.beginPath();
   ctx.moveTo(0, -1);
   ctx.lineTo(0, 1);
   ctx.stroke();
 }
 
-// Function to draw points
 function drawPoints(points: { x: number; y: number }[], color: string) {
   ctx.fillStyle = color;
   points.forEach(({ x, y }) => {
@@ -119,16 +107,13 @@ function drawPoints(points: { x: number; y: number }[], color: string) {
 
 
 
-// Training and visualization
 function update() {
   epoch += 1
-  // Train the network for one step
 
   nn.train(trainingIn, trainingOut, 0.2);
 
   
 
-  // Sample points for visualization
   let truePoints: { x: number; y: number }[] = [];
   let predictedPoints: { x: number; y: number }[] = [];
   for (let x = -1; x <= 1; x += 0.01) {
@@ -138,17 +123,13 @@ function update() {
     predictedPoints.push({ x, y: yPred });
   }
 
-  // Clear canvas
   ctx.clearRect(-1, -1, 2, 2);
 
-  // Draw axes
   drawAxes();
 
-  // Draw points
-  drawPoints(truePoints, 'green'); // True function (x^2)
-  drawPoints(predictedPoints, 'red'); // Predicted points
+  drawPoints(truePoints, 'green');
+  drawPoints(predictedPoints, 'red');
   document.getElementsByTagName('p')[0].innerHTML = "epoch: " + epoch
-  // Continue animation
   requestAnimationFrame(update);
 }
 
@@ -156,6 +137,6 @@ currentFunction = (x:number) => {return x}
 
 generateTrainingData((x:number)=>{return x})
 
-// Start animation
+
 update();
 
